@@ -1,31 +1,17 @@
 #!/usr/bin/env bash
-# Script name: 3-redirection
-# Purpose: Install Nginx and configure /redirect_me as a 301 redirect
+# Script: 3-redirection
+# Configures Nginx to permanently redirect /redirect_me to YouTube
 
-# Update package list and install nginx
+# Install nginx
 sudo apt-get update -y
 sudo apt-get install -y nginx
 
-# Create a server block for redirection
-REDIRECT_CONF="/etc/nginx/sites-available/redirect_me"
+# Add redirect inside the default server block
+sudo sed -i '/listen 80 default_server;/a \
+    location /redirect_me {\n\
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\
+    }' /etc/nginx/sites-available/default
 
-sudo tee $REDIRECT_CONF > /dev/null <<EOF
-server {
-    listen 80;
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-    # Optional: default root page
-    location / {
-        root /var/www/html;
-        index index.html;
-    }
-}
-EOF
-# Enable the configuration
-sudo ln -s $REDIRECT_CONF /etc/nginx/sites-enabled/redirect_me
-# Test nginx configuration syntax
+# Test configuration and restart Nginx using allowed method
 sudo nginx -t
-
-# Restart nginx to apply changes
 sudo service nginx restart
