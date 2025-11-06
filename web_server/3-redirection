@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
 # Script: 3-redirection
-# Purpose: Install Nginx and configure a 301 redirect for /redirect_me without using systemctl
+# Installs Nginx and safely configures /redirect_me redirect
 
-set -e
-
-# Update packages and install Nginx
+# Update and install nginx
 sudo apt-get update -y
 sudo apt-get install -y nginx
 
-# Backup default Nginx config
-sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+# Remove any existing /redirect_me block to avoid duplicates
+sudo sed -i '/location \/redirect_me {/,/}/d' /etc/nginx/sites-available/default
 
-# Insert redirect block after 'server_name _;'
-sudo sed -i '/server_name _;/a \
-    location /redirect_me {\
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\
+# Insert the /redirect_me redirect inside the server block
+sudo sed -i '/listen 80 default_server;/a \
+    location /redirect_me {\n\
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\
     }' /etc/nginx/sites-available/default
 
-# Test Nginx configuration
+# Test nginx configuration
 sudo nginx -t
 
-# Reload Nginx without systemctl
-sudo service nginx reload
-
-echo "Nginx is configured. /redirect_me now redirects with 301 to YouTube."
+# Restart nginx safely
+sudo service nginx restart
