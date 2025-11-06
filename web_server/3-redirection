@@ -31,4 +31,4 @@ sudo nginx -t
 sudo service nginx reload
 
 # 8. Output HTTP status code for checker
-curl -s -o /dev/null -w "%{http_code}" http://localhost/redirect_me
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/redirect_me
