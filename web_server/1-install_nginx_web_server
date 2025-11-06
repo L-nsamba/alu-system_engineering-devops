@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Script name: 1-install_nginx_web_server
+
+# Update package list and install nginx without prompt
+apt-get update -y
+apt-get install -y nginx
+
+# Ensure nginx is listening on port 80
+# Default config usually listens on 80, so we just overwrite default server block if needed
+cat > /var/www/html/index.html <<EOF
+Holberton School for the win!
+EOF
+
+# Restart nginx without using systemctl
+service nginx restart
+# or: /etc/init.d/nginx restart
+
+# Optional: enable nginx to start on boot (not required if script runs only once)
+update-rc.d nginx defaults
