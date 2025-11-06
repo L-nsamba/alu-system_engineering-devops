@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 # Script: 3-redirection
-# Configures Nginx to permanently redirect /redirect_me to YouTube
+# Purpose: Install Nginx and configure a 301 redirect for /redirect_me without using systemctl
 
-# Install nginx
+set -e
+
+# Update packages and install Nginx
 sudo apt-get update -y
 sudo apt-get install -y nginx
 
-# Add redirect inside the default server block
-sudo sed -i '/listen 80 default_server;/a \
-    location /redirect_me {\n\
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n\
+# Backup default Nginx config
+sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak
+
+# Insert redirect block after 'server_name _;'
+sudo sed -i '/server_name _;/a \
+    location /redirect_me {\
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\
     }' /etc/nginx/sites-available/default
 
-# Test configuration and restart Nginx using allowed method
+# Test Nginx configuration
 sudo nginx -t
-sudo service nginx restart
+
+# Reload Nginx without systemctl
+sudo service nginx reload
+
+echo "Nginx is configured. /redirect_me now redirects with 301 to YouTube."
