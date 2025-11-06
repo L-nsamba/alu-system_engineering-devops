@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 # 3-redirection: Install Nginx and configure /redirect_me redirection
 
-# Variables
 REDIRECT_URL="https://www.youtube.com/watch?v=QH2-TGUlwu4"
 NGINX_CONF="/etc/nginx/sites-available/default"
 
-# 1. Update package lists
+# Update packages
 sudo apt-get update -y
 
-# 2. Install Nginx if not installed
+# Install Nginx if missing
 if ! command -v nginx >/dev/null 2>&1; then
     sudo apt-get install -y nginx
 fi
 
-# 3. Backup original Nginx config if it doesn't exist
+# Backup config
 if [ ! -f "${NGINX_CONF}.bak" ]; then
     sudo cp "$NGINX_CONF" "${NGINX_CONF}.bak"
 fi
 
-# 4. Remove any existing /redirect_me block
+# Remove old redirect
 sudo sed -i '/location \/redirect_me {/,/}/d' "$NGINX_CONF"
 
-# 5. Insert /redirect_me block inside server block, after server_name
+# Insert new redirect inside server block after server_name
 sudo sed -i "/server_name _;/a location /redirect_me {\n    return 301 $REDIRECT_URL;\n}" "$NGINX_CONF"
 
-# 6. Test Nginx configuration
+# Test and reload Nginx
 sudo nginx -t
-
-# 7. Reload Nginx
 sudo service nginx reload
 
-# 8. Output HTTP status code for checker
+# Wait a moment to ensure Nginx has reloaded
+sleep 1
+
+# Output ONLY the HTTP status code (no newline)
 curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/redirect_me
