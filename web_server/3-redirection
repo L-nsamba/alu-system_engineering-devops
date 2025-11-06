@@ -1,5 +1,4 @@
-#!usr/bin/env bash
-
+#!/usr/bin/env bash
 # 3-redirection: Install Nginx and configure /redirect_me redirection
 
 # Variables
