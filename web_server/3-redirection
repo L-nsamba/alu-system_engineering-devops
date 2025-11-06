@@ -33,4 +33,4 @@ sudo nginx -t
 # 7. Reload Nginx
 sudo service nginx reload
 
-echo "Redirection configured! /redirect_me now points to $REDIRECT_URL"
+curl -s -o /dev/null -w "%{http_code}" http://localhost/redirect_me
