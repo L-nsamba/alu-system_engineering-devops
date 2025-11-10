@@ -4,7 +4,7 @@
 set -e
 
 # === Variables ===
-STUDENT_ID="6871"
+STUDENT_ID=6871
 WEB01="${STUDENT_ID}-web-01"
 WEB02="${STUDENT_ID}-web-02"
 
@@ -29,7 +29,6 @@ defaults
     timeout connect 5000ms
     timeout client 50000ms
     timeout server 50000ms
-    option forwardfor
 
 frontend http_front
     bind *:80
@@ -37,16 +36,15 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server ${WEB01} ${WEB01_IP}:80 check
-    server ${WEB02} ${WEB02_IP}:80 check
+    server ${WEB01} ${WEB01_IP}:80
+    server ${WEB02} ${WEB02_IP}:80
 EOF
 
 # === Start HAProxy ===
 service haproxy restart
-service haproxy enable
 
 # === Display configuration info ===
 echo "HAProxy load balancer installed and configured successfully!"
 echo "Load balancer is distributing traffic using roundrobin algorithm between:"
-echo "- ${WEB01} (${WEB01_IP})"
-echo "- ${WEB02} (${WEB02_IP})"
+echo "- web-01 (${WEB01_IP})"
+echo "- web-02 (${WEB02_IP})"
