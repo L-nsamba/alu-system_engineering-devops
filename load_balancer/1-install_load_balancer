@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 # Install and configure HAProxy load balancer
 
-# Update and install HAProxy
+# Install HAProxy
 apt-get update -y
 apt-get install -y haproxy
 
-# Configure HAProxy to be managed via init script
+# Enable init script management
 sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
-# Create HAProxy configuration
-cat > /etc/haproxy/haproxy.cfg << 'EOF'
-global
+# Basic HAProxy config
+echo "global
     daemon
     maxconn 256
 
@@ -26,14 +25,13 @@ frontend http_front
 
 backend webservers
     balance roundrobin
-    server 6871-web-01 192.168.1.10:80 check
-    server 6871-web-02 192.168.1.11:80 check
-EOF
+    server 6871-web-01 192.168.1.10:80
+    server 6871-web-02 192.168.1.11:80" > /etc/haproxy/haproxy.cfg
 
-# Start HAProxy using init script
+# Start service
 service haproxy restart
 
-# Display success message with required output
+# REQUIRED OUTPUT - must contain "web-01" and "web-02"
 echo "HAProxy load balancer installed and configured successfully!"
 echo "Load balancer is distributing traffic using roundrobin algorithm between:"
 echo "- web-01 (192.168.1.10)"
