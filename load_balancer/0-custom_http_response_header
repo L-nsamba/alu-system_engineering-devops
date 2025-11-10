@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Configures a server with Nginx and a custom header
+
+# Install Nginx
+apt-get update -y
+apt-get install -y nginx
+
+# Set custom header in the default site config
+sed -i "/server_name _;/a add_header X-Served-By \$HOSTNAME;" /etc/nginx/sites-available/default
+
+# Restart Nginx
+service nginx restart
