@@ -4,10 +4,6 @@
 set -e
 
 # === Variables ===
-STUDENT_ID=6871
-WEB01="${STUDENT_ID}-web-01"
-WEB02="${STUDENT_ID}-web-02"
-
 WEB01_IP="52.87.192.192"
 WEB02_IP="52.91.235.48"
 
@@ -15,11 +11,15 @@ WEB02_IP="52.91.235.48"
 apt-get update -y
 apt-get install -y haproxy
 
+# === Stop any existing HAProxy ===
+service haproxy stop 2>/dev/null || true
+pkill haproxy 2>/dev/null || true
+
 # === Enable HAProxy via init script ===
 sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
 # === Configure HAProxy ===
-cat > /etc/haproxy/haproxy.cfg << EOF
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null << EOF
 global
     daemon
     maxconn 256
@@ -36,15 +36,21 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server ${WEB01} ${WEB01_IP}:80
-    server ${WEB02} ${WEB02_IP}:80
+    server web-01 ${WEB01_IP}:80
+    server web-02 ${WEB02_IP}:80
 EOF
 
+# === Test configuration ===
+haproxy -c -f /etc/haproxy/haproxy.cfg
+
 # === Start HAProxy ===
-service haproxy restart
+service haproxy start
+
+# === Wait for HAProxy to start ===
+sleep 3
 
 # === Display configuration info ===
 echo "HAProxy load balancer installed and configured successfully!"
 echo "Load balancer is distributing traffic using roundrobin algorithm between:"
-echo "- web-01 (${WEB01_IP})"
-echo "- web-02 (${WEB02_IP})"
+echo "web-01"
+echo "web-02"
