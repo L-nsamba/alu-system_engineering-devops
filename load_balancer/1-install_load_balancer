@@ -4,19 +4,12 @@
 set -e
 
 # === Variables ===
-STUDENT_ID=6871
+STUDENT_ID="6871"
 WEB01="${STUDENT_ID}-web-01"
 WEB02="${STUDENT_ID}-web-02"
 
 WEB01_IP="52.87.192.192"
 WEB02_IP="52.91.235.48"
-
-# === Hostname configuration ===
-hostnamectl set-hostname "${STUDENT_ID}-lb-01"
-
-echo "127.0.0.1 ${STUDENT_ID}-lb-01" >> /etc/hosts
-echo "${WEB01_IP} ${WEB01}" >> /etc/hosts
-echo "${WEB02_IP} ${WEB02}" >> /etc/hosts
 
 # === Install HAProxy ===
 apt-get update -y
@@ -26,20 +19,17 @@ apt-get install -y haproxy
 sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
 
 # === Configure HAProxy ===
-cat > /etc/haproxy/haproxy.cfg << 'EOF'
+cat > /etc/haproxy/haproxy.cfg << EOF
 global
-    log /dev/log local0
-    log /dev/log local1 notice
     daemon
+    maxconn 256
 
 defaults
     mode http
-    log global
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+    option forwardfor
 
 frontend http_front
     bind *:80
@@ -47,16 +37,16 @@ frontend http_front
 
 backend http_back
     balance roundrobin
-    server web01 WEB01_IP:80 check
-    server web02 WEB02_IP:80 check
+    server ${WEB01} ${WEB01_IP}:80 check
+    server ${WEB02} ${WEB02_IP}:80 check
 EOF
 
-# Replace placeholders with real IP addresses
-sed -i "s/WEB01_IP/${WEB01_IP}/" /etc/haproxy/haproxy.cfg
-sed -i "s/WEB02_IP/${WEB02_IP}/" /etc/haproxy/haproxy.cfg
-
 # === Start HAProxy ===
-systemctl restart haproxy
-systemctl enable haproxy
+service haproxy restart
+service haproxy enable
 
+# === Display configuration info ===
 echo "HAProxy load balancer installed and configured successfully!"
+echo "Load balancer is distributing traffic using roundrobin algorithm between:"
+echo "- ${WEB01} (${WEB01_IP})"
+echo "- ${WEB02} (${WEB02_IP})"
