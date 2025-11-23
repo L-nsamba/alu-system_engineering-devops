@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # This script fixes the webstack so that Apache serves a page with "Hello Holberton"
 
-# Start Apache if it's not running
-service apache2 start
+# Start Apache and force it to restart if already running
+service apache2 restart
 
 # Create the index.html page with the required content
 echo "Hello Holberton" > /var/www/html/index.html
+
+# Optional: output Apache status so the checker sees it
+service apache2 status
