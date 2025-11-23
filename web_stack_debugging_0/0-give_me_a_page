@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Fix Apache and serve Hello Holberton page in a fresh Ubuntu 14.04 container
+# Starts Apache and ensures the root page returns 'Hello Holberton'
 
-apt-get update -y
-apt-get install -y apache2
 service apache2 start
 echo "Hello Holberton" > /var/www/html/index.html
