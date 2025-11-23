@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Install and start Nginx so that it listens on port 80
+# Install and start Nginx so that it listens on port 80 in a container
 
-# Update packages (optional, but safe)
 apt-get update -y
-
-# Install nginx if not installed
 apt-get install -y nginx
 
-# Start nginx
-service nginx start
+# Remove default PID file if it exists (prevents Nginx from refusing to start)
+rm -f /run/nginx.pid
+
+# Start Nginx in the foreground
+nginx -g 'daemon off;' &
