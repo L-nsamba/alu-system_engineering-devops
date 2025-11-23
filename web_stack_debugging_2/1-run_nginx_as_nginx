@@ -1,23 +1,9 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
 
-# Install Nginx if missing
-apt-get update -y
-apt-get install -y nginx
-
-# Create nginx user if it doesn't exist
-id -u nginx &>/dev/null || useradd -r -s /sbin/nologin nginx
-
-# Set Nginx to run as nginx user
 sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
-
-# Configure default server to listen on 8080
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 default_server;/listen [::]:8080 default_server;/' /etc/nginx/sites-available/default
-
-# Remove any old PID and ensure /run exists
-mkdir -p /run
-rm -f /run/nginx.pid
-
-# Start Nginx
-nginx -g 'daemon off;' &
+sed -i 's/listen 80;/listen 8080;/' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80;/listen \[::\]:8080;/' /etc/nginx/sites-available/default
+service nginx restart
+pgrep -a nginx
+ss -tulnp | grep 8080
