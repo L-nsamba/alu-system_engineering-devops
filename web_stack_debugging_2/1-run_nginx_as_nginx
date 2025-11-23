@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
-# Configure Nginx to run as nginx user and listen on port 8080
+# Ensure Nginx runs as www-data and listens on port 80
 
-sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
-sed -i 's/listen 80;/listen 8080;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80;/listen \[::\]:8080;/' /etc/nginx/sites-available/default
-service nginx restart
-pgrep -a nginx
-ss -tulnp | grep 8080
+# Install nginx if missing
+apt-get update -y
+apt-get install -y nginx
+
+# Configure Nginx to run as www-data
+sed -i 's/^user .*/user www-data;/' /etc/nginx/nginx.conf
+
+# Remove stale PID file
+rm -f /run/nginx.pid
+mkdir -p /run
+
+# Start Nginx in the background
+nginx -g 'daemon off;' &
