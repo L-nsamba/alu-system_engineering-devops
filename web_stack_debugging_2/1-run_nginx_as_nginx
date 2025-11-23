@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Run the whoami command as the user passed as the first argument
+
+# Check that an argument is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <username>"
+    exit 1
+fi
+
+# Run whoami as the specified user
+su - "$1" -c "whoami"
