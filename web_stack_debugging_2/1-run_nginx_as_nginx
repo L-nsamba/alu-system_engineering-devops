@@ -1,23 +1,8 @@
 #!/usr/bin/env bash
-# Configure Nginx to run as nginx user and listen on port 8080
-
-# Install nginx if missing
-apt-get update -y
-apt-get install -y nginx
-
-# Create 'nginx' user if it doesn't exist
-id -u nginx &>/dev/null || useradd -r -s /bin/false nginx
-
-# Update Nginx config to run worker processes as 'nginx'
-sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
-
-# Update default site to listen on port 8080
-sed -i 's/listen 80;/listen 8080;/' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80;/listen [::]:8080;/' /etc/nginx/sites-available/default
-
-# Remove stale PID and ensure /run exists
-rm -f /run/nginx.pid
-mkdir -p /run
-
-# Start Nginx in the background
-nginx -g 'daemon off;' &
+# Fixes server bug
+chmod 644 /etc/nginx/nginx.conf
+sed -Ei 's/\s*#?\s*user .*/user nginx;/' /etc/nginx/nginx.conf
+sed -Ei 's/(listen (\[::\]:)?80) /\180 /' /etc/nginx/sites-enabled/default
+pkill apache2
+# restart
+su nginx -s /bin/bash -c 'service nginx restart'
